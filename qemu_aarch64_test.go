@@ -47,7 +47,7 @@ func fullVMConfigArch() *Config {
 	return c
 }
 
-func TestFullUEFIMachineCommandArch(t *testing.T) {
+func TestFullUEFIMachineCommandAarch64(t *testing.T) {
 	c := fullVMConfigArch()
 
 	u := UEFIFirmwareDevice{
