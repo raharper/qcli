@@ -62,7 +62,7 @@ func NewSystemUEFIFirmwareDevice(useSecureBoot bool) (*UEFIFirmwareDevice, error
 	uefiDev := UEFIFirmwareDevice{}
 	//can add in more paths as necessary
 	var SecCodePaths = []string{SecCodePath, SecCodePathAarch64}
-	var SecVarPaths = []string{UbuntuSecVarsAarch64, CentosSecVars, UbuntuSecVarsAarch64}
+	var SecVarPaths = []string{UbuntuSecVars, CentosSecVars, UbuntuSecVarsAarch64}
 	var UnSecCodePaths = []string{UnSecCodePath, UnSecCodePathAarch64}
 	var UnSecVarPaths = []string{UnSecVarsPath, UnSecVarsPathAarch64}
 

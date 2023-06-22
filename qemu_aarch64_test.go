@@ -11,7 +11,7 @@ var (
 	fullUefiAarch64VM = "-machine virt,accel=kvm -cpu host -m 1G -drive file=udisk.img,id=hd0,if=none,format=qcow2 -device virtio-blk-pci,drive=hd0,serial=hd0,disable-modern=false,addr=0x1e,bus=pcie.0,scsi=off,config-wce=off -drive file=ubuntu-22.04.2-live-server-arm64.iso,id=cdrom0,if=none,format=raw,media=cdrom,readonly=on -device virtio-blk-pci,drive=cdrom0,serial=cdrom0,bootindex=0,disable-modern=false,addr=0x1d,bus=pcie.0,scsi=off,config-wce=off -drive if=pflash,format=raw,readonly=on,file=/usr/share/AAVMF/AAVMF_CODE.ms.fd -drive if=pflash,format=raw,file=uefi-nvram.fd -object memory-backend-ram,id=dimm1,size=1G -numa node,memdev=dimm1 -nographic"
 )
 
-func fullVMConfigArch() *Config {
+func fullVMConfigAarch64() *Config {
 	c := &Config{
 		Machine: Machine{
 			Type:         MachineTypeVirt,
@@ -48,7 +48,7 @@ func fullVMConfigArch() *Config {
 }
 
 func TestFullUEFIMachineCommandAarch64(t *testing.T) {
-	c := fullVMConfigArch()
+	c := fullVMConfigAarch64()
 
 	u := UEFIFirmwareDevice{
 		Code: "/usr/share/AAVMF/AAVMF_CODE.ms.fd",
