@@ -9,6 +9,7 @@ var (
 	deviceSerialString             = "-device virtio-serial-pci,disable-modern=true,id=serial0,romfile=efi-virtio.rom,max_ports=2"
 	deviceVirtioSerialPortString   = "-device virtserialport,chardev=char0,id=channel0,name=channel.0 -chardev socket,id=char0,path=/tmp/char.sock,server=on,wait=off"
 	deviceSpiceSerialPortString    = "-device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 -chardev spicevmc,id=spicechannel0,name=vdagent"
+	devicePCISerialString		   = "-device pci-serial,chardev=serial0"
 )
 
 func TestAppendLegacySerialMonMux(t *testing.T) {
@@ -87,4 +88,12 @@ func TestAppendEmptySerialDevice(t *testing.T) {
 	if err := device.Valid(); err == nil {
 		t.Fatalf("SerialDevice should not be valid when ID is empty")
 	}
+}
+
+func TestAppendPCISerialDevice(t *testing.T) {
+	sdev := PCISerialDevice{
+		ChardevID: "serial0",
+	}
+
+	testAppend(sdev, devicePCISerialString, t)
 }

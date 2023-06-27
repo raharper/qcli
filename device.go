@@ -166,6 +166,9 @@ const (
 
 	// TPM-CRB TPM Device
 	TPMCRBDebice DeviceDriver = "tpm-crb"
+
+	//PCI Serial Device
+	PCISerial DeviceDriver = "pci-serial"
 )
 
 func (config *Config) appendDevices() error {
@@ -233,6 +236,10 @@ func (config *Config) appendDevices() error {
 			}
 		case "UEFIFirmwareDevices":
 			for _, d := range config.UEFIFirmwareDevices {
+				config.devices = append(config.devices, d)
+			}
+		case "PCISerialDevices":
+			for _, d := range config.PCISerialDevices {
 				config.devices = append(config.devices, d)
 			}
 		}

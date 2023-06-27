@@ -7,6 +7,7 @@ var (
 	deviceCharDeviceBackendSocket   = "-chardev socket,id=serial0,path=/tmp/console.sock,server=on,wait=off"
 	deviceCharDeviceBackendStdioMux = "-chardev stdio,id=serial0,mux=on,signal=off"
 	deviceCharDeviceMultiple        = "-chardev socket,id=serial0,path=/tmp/console.sock,server=on,wait=off -chardev socket,id=monitor0,path=/tmp/monitor.sock,server=on,wait=off"
+	deviceCharDevicePCIDriver		= "-serial none -monitor none -chardev socket,id=serial0,path=/tmp/console.sock,server=on,wait=off -device pci-serial,chardev=serial0"
 )
 
 func TestBadCharDevice(t *testing.T) {
@@ -78,4 +79,20 @@ func TestAppendMultipleCharDevices(t *testing.T) {
 	}
 	c.CharDevices = []CharDevice{serial, mon}
 	testConfig(c, deviceCharDeviceMultiple, t)
+}
+
+func TestAppendPCIDriver(t *testing.T) {
+	c := &Config{}
+	serial := CharDevice {
+		Driver: PCISerial,
+		Backend: Socket,
+		ID: "serial0",
+		Path: "/tmp/console.sock",
+	}
+	pcidev := PCISerialDevice {
+		ChardevID: "serial0",
+	}
+	c.CharDevices = []CharDevice{serial}
+	c.PCISerialDevices = []PCISerialDevice{pcidev}
+	testConfig(c, deviceCharDevicePCIDriver, t)
 }

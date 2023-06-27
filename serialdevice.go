@@ -182,3 +182,29 @@ func (dev SerialDevice) deviceName(config *Config) string {
 
 	return string(dev.Driver)
 }
+
+type PCISerialDevice struct {
+	// specify a chardev-id of an existing CharDev, and use the name
+	ChardevID string `yaml:"chardev-id"`
+}
+
+func (pDev PCISerialDevice) Valid() error {
+	if pDev.ChardevID == "" {
+		return fmt.Errorf("PCISerialDevice has empty ChardevID field")
+	}
+	return nil
+}
+
+func (pDev PCISerialDevice) QemuParams(conifg *Config) []string {
+	var deviceParams []string
+	var qemuParams []string
+
+	
+	deviceParams = append(deviceParams, "pci-serial")
+	deviceParams = append(deviceParams, fmt.Sprintf("chardev=%s", pDev.ChardevID))
+
+	qemuParams = append(qemuParams, "-device")
+	qemuParams = append(qemuParams, strings.Join(deviceParams, ","))
+
+	return qemuParams
+}
