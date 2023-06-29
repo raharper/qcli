@@ -243,7 +243,6 @@ type Config struct {
 	CharDevices           []CharDevice           `yaml:"char-devices"`
 	LegacySerialDevices   []LegacySerialDevice   `yaml:"legacy-serial-devices"`
 	SerialDevices         []SerialDevice         `yaml:"serial-devices"`
-	PCISerialDevices 	  []PCISerialDevice	     `yaml:"pci-serial-devices"`
 	MonitorDevices        []MonitorDevice        `yaml:"monitor-devices"`
 	PCIeRootPortDevices   []PCIeRootPortDevice   `yaml:"pcie-root-port-devices"`
 	UEFIFirmwareDevices   []UEFIFirmwareDevice   `yaml:"uefi-firmware-devices"`
