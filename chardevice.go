@@ -179,8 +179,6 @@ func (cdev CharDevice) QemuParams(config *Config) []string {
 	if cdev.Driver == PCISerial {
 		qemuParams = append(qemuParams, "-serial")
 		qemuParams = append(qemuParams, "none")
-		qemuParams = append(qemuParams, "-monitor")
-		qemuParams = append(qemuParams, "none")
 	}
 
 	qemuParams = append(qemuParams, "-chardev")

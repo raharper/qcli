@@ -6,10 +6,10 @@ var (
 	deviceLegacySerialMonMuxString = "-serial mon:stdio"
 	deviceLegacySerialString       = "-serial chardev:serial0"
 	deviceLegacySerialSocketString = "-serial unix:/tmp/serial.sock,server=on,wait=off"
-	deviceSerialString             = "-device virtio-serial-pci,disable-modern=true,id=serial0,romfile=efi-virtio.rom,max_ports=2"
+	deviceSerialString             = "-device virtio-serial-pci,id=serial0,romfile=efi-virtio.rom,disable-modern=true,max_ports=2"
 	deviceVirtioSerialPortString   = "-device virtserialport,chardev=char0,id=channel0,name=channel.0 -chardev socket,id=char0,path=/tmp/char.sock,server=on,wait=off"
 	deviceSpiceSerialPortString    = "-device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 -chardev spicevmc,id=spicechannel0,name=vdagent"
-	devicePCISerialString		   = "-device pci-serial,chardev=serial0"
+	devicePCISerialString		   = "-device pci-serial,id=pciser0,chardev=serial0"
 )
 
 func TestAppendLegacySerialMonMux(t *testing.T) {
@@ -37,7 +37,7 @@ func TestAppendLegacySerialUnix(t *testing.T) {
 
 }
 
-func TestAppendDeviceSerial(t *testing.T) {
+func TestAppendDeviceVirtSerial(t *testing.T) {
 	sdev := SerialDevice{
 		Driver:        VirtioSerial,
 		ID:            "serial0",
@@ -90,10 +90,11 @@ func TestAppendEmptySerialDevice(t *testing.T) {
 	}
 }
 
-func TestAppendPCISerialDevice(t *testing.T) {
-	sdev := PCISerialDevice{
-		ChardevID: "serial0",
+func TestAppendDevicePCISerial(t *testing.T) {
+	sdev := SerialDevice{
+		Driver:        PCISerial,
+		ID:            "pciser0",
+		ChardevID:	   "serial0",
 	}
-
 	testAppend(sdev, devicePCISerialString, t)
 }

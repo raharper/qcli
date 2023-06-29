@@ -102,6 +102,15 @@ func (dev LegacySerialDevice) deviceName(config *Config) string {
 }
 */
 
+//Virtio-serial specific driver struct
+type VirtioSerialDevice struct {
+	
+}
+
+//PCI-serial specific driver struct
+type PCISerialDevice struct {
+}
+
 // SerialDevice represents a qemu serial device.
 type SerialDevice struct {
 	// Driver is the qemu device driver
@@ -110,11 +119,15 @@ type SerialDevice struct {
 	// ID is the serial device identifier.
 	ID string
 
-	// DisableModern prevents qemu from relying on fast MMIO.
-	DisableModern bool
+	// PCI Slot
+	Addr string
 
 	// ROMFile specifies the ROM file being used for this device.
 	ROMFile string
+
+	//virtio-serial specific attributes
+	// DisableModern prevents qemu from relying on fast MMIO.
+	DisableModern bool
 
 	// DevNo identifies the ccw devices for s390x architecture
 	DevNo string
@@ -124,6 +137,12 @@ type SerialDevice struct {
 
 	// MaxPorts is the maximum number of ports for this device.
 	MaxPorts uint
+
+	//pci-serial specific attributes
+	//Chardev associated with PCISerial
+	ChardevID string
+
+	Multifunction bool
 }
 
 // Valid returns true if the SerialDevice structure is valid and complete.
@@ -134,7 +153,11 @@ func (dev SerialDevice) Valid() error {
 	if dev.ID == "" {
 		return fmt.Errorf("SerialDevice has empty ID field")
 	}
-
+	if (dev.Driver == PCISerial) {
+		if dev.ChardevID == "" {
+			return fmt.Errorf("PCISerialDevice has no associated chardev")
+		}
+	} 
 	return nil
 }
 
@@ -144,22 +167,34 @@ func (dev SerialDevice) QemuParams(config *Config) []string {
 	var qemuParams []string
 
 	deviceParams = append(deviceParams, dev.deviceName(config))
-	if s := dev.Transport.disableModern(config, dev.DisableModern); s != "" {
-		deviceParams = append(deviceParams, s)
-	}
 	deviceParams = append(deviceParams, fmt.Sprintf("id=%s", dev.ID))
-	if dev.Transport.isVirtioPCI(config) && dev.ROMFile != "" {
-		deviceParams = append(deviceParams, fmt.Sprintf("romfile=%s", dev.ROMFile))
-		if dev.Driver == VirtioSerial && dev.MaxPorts != 0 {
+	if dev.Addr != "" {
+		deviceParams = append(deviceParams, fmt.Sprintf("addr=%s", dev.Addr))
+	}
+	if dev.ROMFile != "" {
+		if dev.Driver == PCISerial || dev.Transport.isVirtioPCI(config) {
+			deviceParams = append(deviceParams, fmt.Sprintf("romfile=%s", dev.ROMFile))
+		}
+	}
+	switch dev.Driver {
+	case VirtioSerial:
+		if s := dev.Transport.disableModern(config, dev.DisableModern); s != "" {
+			deviceParams = append(deviceParams, s)
+		}
+		if dev.Transport.isVirtioPCI(config) && dev.MaxPorts != 0 {
 			deviceParams = append(deviceParams, fmt.Sprintf("max_ports=%d", dev.MaxPorts))
 		}
-	}
-
-	if dev.Transport.isVirtioCCW(config) {
-		if config.Knobs.IOMMUPlatform {
-			deviceParams = append(deviceParams, "iommu_platform=on")
+		if dev.Transport.isVirtioCCW(config) {
+			if config.Knobs.IOMMUPlatform {
+				deviceParams = append(deviceParams, "iommu_platform=on")
+			}
+			deviceParams = append(deviceParams, fmt.Sprintf("devno=%s", dev.DevNo))
 		}
-		deviceParams = append(deviceParams, fmt.Sprintf("devno=%s", dev.DevNo))
+	case PCISerial:
+		deviceParams = append(deviceParams, fmt.Sprintf("chardev=%s", dev.ChardevID))
+		if dev.Multifunction {
+			deviceParams = append(deviceParams, "multifunction=on")
+		}
 	}
 
 	qemuParams = append(qemuParams, "-device")
@@ -171,40 +206,11 @@ func (dev SerialDevice) QemuParams(config *Config) []string {
 // deviceName returns the QEMU device name for the current combination of
 // driver and transport.
 func (dev SerialDevice) deviceName(config *Config) string {
-	if dev.Transport == "" {
-		dev.Transport = dev.Transport.defaultTransport(config)
-	}
-
-	switch dev.Driver {
-	case VirtioSerial:
+	if dev.Driver == VirtioSerial {
+		if dev.Transport == "" {
+			dev.Transport = dev.Transport.defaultTransport(config)
+		}
 		return VirtioSerialTransport[dev.Transport]
 	}
-
 	return string(dev.Driver)
-}
-
-type PCISerialDevice struct {
-	// specify a chardev-id of an existing CharDev, and use the name
-	ChardevID string `yaml:"chardev-id"`
-}
-
-func (pDev PCISerialDevice) Valid() error {
-	if pDev.ChardevID == "" {
-		return fmt.Errorf("PCISerialDevice has empty ChardevID field")
-	}
-	return nil
-}
-
-func (pDev PCISerialDevice) QemuParams(conifg *Config) []string {
-	var deviceParams []string
-	var qemuParams []string
-
-	
-	deviceParams = append(deviceParams, "pci-serial")
-	deviceParams = append(deviceParams, fmt.Sprintf("chardev=%s", pDev.ChardevID))
-
-	qemuParams = append(qemuParams, "-device")
-	qemuParams = append(qemuParams, strings.Join(deviceParams, ","))
-
-	return qemuParams
 }
