@@ -145,13 +145,18 @@ func (dev SerialDevice) Valid() error {
 		return fmt.Errorf("SerialDevice has empty ID field")
 	}
 	if (dev.Driver == PCISerial) {
+		if (len(dev.ChardevIDs) > 4 || len(dev.ChardevIDs) == 0) {
+			return fmt.Errorf("PCISerialDevice has a malformed list of ChardevIDs (length 0 or length > 4)")
+		} 
 		if dev.ChardevIDs[0] == "" {
 			return fmt.Errorf("PCISerialDevice has no associated ChardevID")
 		}
 		if dev.MaxPorts != 1 && dev.MaxPorts != 2 && dev.MaxPorts != 4 {
 			return fmt.Errorf("PCISerialDevice has Ports not equal to 1, 2, or 4")
 		}
-	} 
+		
+	}
+	
 	return nil
 }
 

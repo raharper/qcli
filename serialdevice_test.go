@@ -144,3 +144,28 @@ func TestAppendDevicePCISerial4x4Char(t *testing.T) {
 	}
 	testAppend(sdev, devicePCISerialString4x4, t)
 }
+
+func TestAppendMalformedPCISerialChardevIDs(t *testing.T) {
+	device := SerialDevice{
+		Driver:        PCISerial,
+		ID:            "pciser0",
+		MaxPorts:		2,
+	}
+
+	if err := device.Valid(); err == nil {
+		t.Fatalf("SerialDevice should not have empty ChardevIDs list")
+	}
+}
+
+func TestAppendLongPCISerialChardevIDs(t *testing.T) {
+	device := SerialDevice{
+		Driver:        PCISerial,
+		ID:            "pciser0",
+		ChardevIDs:    []string{"serial0", "serial1", "serial2", "serial3", "serial4"},
+		MaxPorts:	    2,
+	}
+
+	if err := device.Valid(); err == nil {
+		t.Fatalf("SerialDevice should not have ChardevIDs list of length > 4")
+	}
+}
