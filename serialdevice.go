@@ -130,7 +130,7 @@ type SerialDevice struct {
 	Transport VirtioTransport
 
 	//pci-serial specific attributes
-	//Chardev associated with PCISerial
+	//Chardev associated with PCISerialDevice
 	ChardevIDs []string
 
 	Multifunction bool
@@ -144,19 +144,19 @@ func (dev SerialDevice) Valid() error {
 	if dev.ID == "" {
 		return fmt.Errorf("SerialDevice has empty ID field")
 	}
-	if (dev.Driver == PCISerial) {
-		if (len(dev.ChardevIDs) > 4 || len(dev.ChardevIDs) == 0) {
-			return fmt.Errorf("PCISerialDevice has a malformed list of ChardevIDs (length 0 or length > 4)")
-		} 
+	if dev.Driver == PCISerialDevice {
+		if len(dev.ChardevIDs) > 4 || len(dev.ChardevIDs) == 0 {
+			return fmt.Errorf("PCISerialDeviceDevice has a malformed list of ChardevIDs (length 0 or length > 4)")
+		}
 		if dev.ChardevIDs[0] == "" {
-			return fmt.Errorf("PCISerialDevice has no associated ChardevID")
+			return fmt.Errorf("PCISerialDeviceDevice has no associated ChardevID")
 		}
 		if dev.MaxPorts != 1 && dev.MaxPorts != 2 && dev.MaxPorts != 4 {
-			return fmt.Errorf("PCISerialDevice has Ports not equal to 1, 2, or 4")
+			return fmt.Errorf("PCISerialDeviceDevice has MaxPorts not equal to 1, 2, or 4")
 		}
-		
+
 	}
-	
+
 	return nil
 }
 
@@ -171,7 +171,7 @@ func (dev SerialDevice) QemuParams(config *Config) []string {
 		deviceParams = append(deviceParams, fmt.Sprintf("addr=%s", dev.Addr))
 	}
 	if dev.ROMFile != "" {
-		if dev.Driver == PCISerial || dev.Transport.isVirtioPCI(config) {
+		if dev.Driver == PCISerialDevice || dev.Transport.isVirtioPCI(config) {
 			deviceParams = append(deviceParams, fmt.Sprintf("romfile=%s", dev.ROMFile))
 		}
 	}
@@ -192,7 +192,7 @@ func (dev SerialDevice) QemuParams(config *Config) []string {
 			}
 			deviceParams = append(deviceParams, fmt.Sprintf("devno=%s", dev.DevNo))
 		}
-	case PCISerial:
+	case PCISerialDevice:
 		if dev.MaxPorts == 1 {
 			deviceParams = append(deviceParams, fmt.Sprintf("chardev=%s", dev.ChardevIDs[0]))
 		} else {
@@ -227,7 +227,7 @@ func (dev SerialDevice) deviceName(config *Config) string {
 		}
 		devNameStr = VirtioSerialTransport[dev.Transport]
 	}
-	if dev.Driver == PCISerial {
+	if dev.Driver == PCISerialDevice {
 		add_str := ""
 		if dev.MaxPorts == 2 {
 			add_str = "-2x"

@@ -170,13 +170,13 @@ func (cdev CharDevice) QemuParams(config *Config) []string {
 	}
 
 	// Legacy serial is special. It does not follow the device + driver model
-	if cdev.Driver != LegacySerial && cdev.Driver != PCISerial {
+	if cdev.Driver != LegacySerial && cdev.Driver != PCISerialDevice {
 		qemuParams = append(qemuParams, "-device")
 		qemuParams = append(qemuParams, strings.Join(deviceParams, ","))
 	}
-	
+
 	//appending -serial none and -monitor none to qemuparams if we are using pci-serial
-	if cdev.Driver == PCISerial {
+	if cdev.Driver == PCISerialDevice {
 		qemuParams = append(qemuParams, "-serial")
 		qemuParams = append(qemuParams, "none")
 	}

@@ -168,7 +168,7 @@ const (
 	TPMCRBDebice DeviceDriver = "tpm-crb"
 
 	// PCI Serial Device
-	PCISerial DeviceDriver = "pci-serial"
+	PCISerialDevice DeviceDriver = "pci-serial"
 )
 
 func (config *Config) appendDevices() error {

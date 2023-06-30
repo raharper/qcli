@@ -9,11 +9,11 @@ var (
 	deviceSerialString             = "-device virtio-serial-pci,id=serial0,romfile=efi-virtio.rom,disable-modern=true,max_ports=2"
 	deviceVirtioSerialPortString   = "-device virtserialport,chardev=char0,id=channel0,name=channel.0 -chardev socket,id=char0,path=/tmp/char.sock,server=on,wait=off"
 	deviceSpiceSerialPortString    = "-device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 -chardev spicevmc,id=spicechannel0,name=vdagent"
-	devicePCISerialString		   = "-device pci-serial,id=pciser0,chardev=serial0"
-	devicePCISerialString2x1	   = "-device pci-serial-2x,id=pciser0,chardev1=serial0"
-	devicePCISerialString2x2	   = "-device pci-serial-2x,id=pciser0,chardev1=serial0,chardev2=serial1"
-	devicePCISerialString4x2	   = "-device pci-serial-4x,id=pciser0,chardev1=serial0,chardev2=serial1"
-	devicePCISerialString4x4	   = "-device pci-serial-4x,id=pciser0,multifunction=on,chardev1=serial0,chardev2=serial1,chardev3=serial2,chardev4=serial3"
+	devicePCISerialDeviceString    = "-device pci-serial,id=pciser0,chardev=serial0"
+	devicePCISerialDeviceString2x1 = "-device pci-serial-2x,id=pciser0,chardev1=serial0"
+	devicePCISerialDeviceString2x2 = "-device pci-serial-2x,id=pciser0,chardev1=serial0,chardev2=serial1"
+	devicePCISerialDeviceString4x2 = "-device pci-serial-4x,id=pciser0,chardev1=serial0,chardev2=serial1"
+	devicePCISerialDeviceString4x4 = "-device pci-serial-4x,id=pciser0,multifunction=on,chardev1=serial0,chardev2=serial1,chardev3=serial2,chardev4=serial3"
 )
 
 func TestAppendLegacySerialMonMux(t *testing.T) {
@@ -94,62 +94,62 @@ func TestAppendEmptySerialDevice(t *testing.T) {
 	}
 }
 
-func TestAppendDevicePCISerial(t *testing.T) {
+func TestAppendDevicePCISerialDevice(t *testing.T) {
 	sdev := SerialDevice{
-		Driver:        PCISerial,
-		ID:            "pciser0",
-		ChardevIDs:	   []string{"serial0"},
-		MaxPorts:		1,
+		Driver:     PCISerialDevice,
+		ID:         "pciser0",
+		ChardevIDs: []string{"serial0"},
+		MaxPorts:   1,
 	}
-	testAppend(sdev, devicePCISerialString, t)
+	testAppend(sdev, devicePCISerialDeviceString, t)
 }
 
-func TestAppendDevicePCISerial2x1Char(t *testing.T) {
+func TestAppendDevicePCISerialDevice2x1Char(t *testing.T) {
 	sdev := SerialDevice{
-		Driver:        PCISerial,
-		ID:            "pciser0",
-		ChardevIDs:	   []string{"serial0"},
-		MaxPorts:		2,
+		Driver:     PCISerialDevice,
+		ID:         "pciser0",
+		ChardevIDs: []string{"serial0"},
+		MaxPorts:   2,
 	}
-	testAppend(sdev, devicePCISerialString2x1, t)
+	testAppend(sdev, devicePCISerialDeviceString2x1, t)
 }
 
-func TestAppendDevicePCISerial2x2Char(t *testing.T) {
+func TestAppendDevicePCISerialDevice2x2Char(t *testing.T) {
 	sdev := SerialDevice{
-		Driver:        PCISerial,
-		ID:            "pciser0",
-		ChardevIDs:	   []string{"serial0", "serial1"},
-		MaxPorts:		2,
+		Driver:     PCISerialDevice,
+		ID:         "pciser0",
+		ChardevIDs: []string{"serial0", "serial1"},
+		MaxPorts:   2,
 	}
-	testAppend(sdev, devicePCISerialString2x2, t)
+	testAppend(sdev, devicePCISerialDeviceString2x2, t)
 }
 
-func TestAppendDevicePCISerial4x2Char(t *testing.T) {
+func TestAppendDevicePCISerialDevice4x2Char(t *testing.T) {
 	sdev := SerialDevice{
-		Driver:        PCISerial,
-		ID:            "pciser0",
-		ChardevIDs:	   []string{"serial0", "serial1"},
-		MaxPorts:		4,
+		Driver:     PCISerialDevice,
+		ID:         "pciser0",
+		ChardevIDs: []string{"serial0", "serial1"},
+		MaxPorts:   4,
 	}
-	testAppend(sdev, devicePCISerialString4x2, t)
+	testAppend(sdev, devicePCISerialDeviceString4x2, t)
 }
 
-func TestAppendDevicePCISerial4x4Char(t *testing.T) {
+func TestAppendDevicePCISerialDevice4x4Char(t *testing.T) {
 	sdev := SerialDevice{
-		Driver:        PCISerial,
+		Driver:        PCISerialDevice,
 		ID:            "pciser0",
-		ChardevIDs:	   []string{"serial0", "serial1", "serial2", "serial3"},
-		MaxPorts:		4,
+		ChardevIDs:    []string{"serial0", "serial1", "serial2", "serial3"},
+		MaxPorts:      4,
 		Multifunction: true,
 	}
-	testAppend(sdev, devicePCISerialString4x4, t)
+	testAppend(sdev, devicePCISerialDeviceString4x4, t)
 }
 
-func TestAppendMalformedPCISerialChardevIDs(t *testing.T) {
+func TestAppendMalformedPCISerialDeviceChardevIDs(t *testing.T) {
 	device := SerialDevice{
-		Driver:        PCISerial,
-		ID:            "pciser0",
-		MaxPorts:		2,
+		Driver:   PCISerialDevice,
+		ID:       "pciser0",
+		MaxPorts: 2,
 	}
 
 	if err := device.Valid(); err == nil {
@@ -157,12 +157,12 @@ func TestAppendMalformedPCISerialChardevIDs(t *testing.T) {
 	}
 }
 
-func TestAppendLongPCISerialChardevIDs(t *testing.T) {
+func TestAppendLongPCISerialDeviceChardevIDs(t *testing.T) {
 	device := SerialDevice{
-		Driver:        PCISerial,
-		ID:            "pciser0",
-		ChardevIDs:    []string{"serial0", "serial1", "serial2", "serial3", "serial4"},
-		MaxPorts:	    2,
+		Driver:     PCISerialDevice,
+		ID:         "pciser0",
+		ChardevIDs: []string{"serial0", "serial1", "serial2", "serial3", "serial4"},
+		MaxPorts:   2,
 	}
 
 	if err := device.Valid(); err == nil {
