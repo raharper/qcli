@@ -8,6 +8,7 @@ var (
 	deviceCharDeviceBackendStdioMux = "-chardev stdio,id=serial0,mux=on,signal=off"
 	deviceCharDeviceMultiple        = "-chardev socket,id=serial0,path=/tmp/console.sock,server=on,wait=off -chardev socket,id=monitor0,path=/tmp/monitor.sock,server=on,wait=off"
 	deviceCharDevicePCIDriver		= "-serial none -chardev socket,id=serial0,path=/tmp/console.sock,server=on,wait=off -device pci-serial,id=pciser0,chardev=serial0"
+	deviceCharDevicePCIDriver2x		= "-serial none -chardev socket,id=serial0,path=/tmp/console.sock,server=on,wait=off -device pci-serial-2x,id=pciser0,chardev1=serial0"
 )
 
 func TestBadCharDevice(t *testing.T) {
@@ -81,7 +82,7 @@ func TestAppendMultipleCharDevices(t *testing.T) {
 	testConfig(c, deviceCharDeviceMultiple, t)
 }
 
-func TestAppendPCIDriver(t *testing.T) {
+func TestAppendPCIDriver1x(t *testing.T) {
 	c := &Config{}
 	serial := CharDevice {
 		Driver: PCISerial,
@@ -92,9 +93,29 @@ func TestAppendPCIDriver(t *testing.T) {
 	pcidev := SerialDevice {
 		Driver:        PCISerial,
 		ID: 		   "pciser0",
-		ChardevID:	   "serial0",
+		ChardevIDs:	   []string{"serial0"},
+		MaxPorts: 		1,
 	}
 	c.CharDevices = []CharDevice{serial}
 	c.SerialDevices = []SerialDevice{pcidev}
 	testConfig(c, deviceCharDevicePCIDriver, t)
+}
+
+func TestAppendPCIDriver2x1(t *testing.T) {
+	c := &Config{}
+	serial := CharDevice {
+		Driver: PCISerial,
+		Backend: Socket,
+		ID: "serial0",
+		Path: "/tmp/console.sock",
+	}
+	pcidev := SerialDevice {
+		Driver:        PCISerial,
+		ID: 		   "pciser0",
+		ChardevIDs:	   []string{"serial0"},
+		MaxPorts: 		2,
+	}
+	c.CharDevices = []CharDevice{serial}
+	c.SerialDevices = []SerialDevice{pcidev}
+	testConfig(c, deviceCharDevicePCIDriver2x, t)
 }

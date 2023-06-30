@@ -167,7 +167,7 @@ const (
 	// TPM-CRB TPM Device
 	TPMCRBDebice DeviceDriver = "tpm-crb"
 
-	//PCI Serial Device
+	// PCI Serial Device
 	PCISerial DeviceDriver = "pci-serial"
 )
 
