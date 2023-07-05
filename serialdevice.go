@@ -119,6 +119,9 @@ type SerialDevice struct {
 	// MaxPorts is the maximum number of ports for this device. (note: 1, 2, or 4 for pci-serial driver)
 	MaxPorts uint
 
+	//Enable Multifunction
+	Multifunction bool
+
 	//virtio-serial specific attributes
 	// DisableModern prevents qemu from relying on fast MMIO.
 	DisableModern bool
@@ -132,8 +135,6 @@ type SerialDevice struct {
 	//pci-serial specific attributes
 	//Chardev associated with PCISerialDevice
 	ChardevIDs []string
-
-	Multifunction bool
 }
 
 // Valid returns true if the SerialDevice structure is valid and complete.
